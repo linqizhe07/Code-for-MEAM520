@@ -23,10 +23,12 @@ class FK:
         jointPositions = np.zeros((8, 3))
         T0i = np.eye(4)
     
-        # 明确记录基座位置
-        jointPositions[0] = T0i[:3, 3] 
         T = np.eye(4)
         T[:3, 3] = [0, 0, 0.141]     # 这就是你说的 0.141
+
+        jointPositions = np.zeros((8,3))
+        jointPositions[0] = T[:3,3]  # 现在第0行是 joint1
+
 
 
 
