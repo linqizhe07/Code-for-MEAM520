@@ -18,22 +18,24 @@ class FK:
         ])
 
     def forward(self, q):
-        # 这里的 q 应该是 7 维
-        T0i = np.eye(4)
-        # 增加一个位置记录：基座 + 7个关节 = 8个点
-        jointPositions = np.zeros((8, 3))
-        jointPositions[0] = [0, 0, 0] 
+        T = np.eye(4)
 
-        # 偏移量逻辑：确保这是题目要求的，而不是为了凑数
-        q_offset = np.array([0, 0, 0, 0, 0, 0, -pi/4]) 
+        # 8x3: joint1..joint7 + end effector
+        jointPositions = np.zeros((8, 3))
 
         for i in range(7):
-            theta = q[i] + q_offset[i]
-            Ai = self.get_transform(self.alphas[i], self.a[i], self.d[i], theta)
-            T0i = T0i @ Ai
-            jointPositions[i+1] = T0i[:3, 3]
+            Ai = self.get_transform(self.alphas[i], self.a[i], self.d[i], q[i])
+            T = T @ Ai
+            # 第 i 行就是 joint(i+1)
+            jointPositions[i] = T[:3, 3]
 
-        return jointPositions, T0i
+        # EE：如果 handout 把 EE 和 joint7 同一点，那就直接用 T
+        # 如果 handout 说 EE 在 joint7 的 z 方向还有一个固定长度 d_ee，就在这里再乘一个固定 T7e
+        T0e = T
+        jointPositions[7] = T0e[:3, 3]
+
+        return jointPositions, T0e
+
 
     
     # This code is for Lab 2, you can ignore it ofr Lab 1
