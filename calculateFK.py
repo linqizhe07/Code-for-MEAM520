@@ -26,7 +26,7 @@ class FK:
 
         # joint angle offsets (only apply once)
         q_offset = np.zeros(7)
-        q_offset[6] -= -pi/4
+        q_offset[6] = -pi/4
 
         jointPositions = np.zeros((8, 3))
         T0e = np.eye(4)
