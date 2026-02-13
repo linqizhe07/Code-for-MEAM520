@@ -21,7 +21,7 @@ class FK:
         q_offset = [0, 0, 0, 0, pi, 0, 0, -pi/4]
 
         jointPositions = np.zeros((8, 3))
-        T = np.eye(4)
+        T0e = np.eye(4)
 
         for i in range(8):
             # 1. 如果你认为第 i 个关节的位置是在变换 Ai 发生“之前”
@@ -30,12 +30,12 @@ class FK:
             theta = q[i] + q_offset[i]
             Ai = self.get_transform(self.alphas[i], self.a[i], self.d[i], theta)
             
-            T = T @ Ai
+            T0e = T0e @ Ai
             
             # 记录位置
             jointPositions[i] = T[:3, 3]
             
-        return jointPositions, T
+        return jointPositions, T0e
 
 
 
