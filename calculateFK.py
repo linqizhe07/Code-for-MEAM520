@@ -33,7 +33,7 @@ class FK:
             T0e = T0e @ Ai
             
             # 记录位置
-            jointPositions[i] = T[:3, 3]
+            jointPositions[i] = T0e[:3, 3]
             
         return jointPositions, T0e
 
