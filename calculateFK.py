@@ -49,7 +49,7 @@ class FK:
             p_origin_world = T0e[:3, 3]
             R_world_i      = T0e[:3, :3]
 
-            # Put the relative Offset into the World
+            # Put the relative Offset into the Worldframe
             p_joint_world = p_origin_world + R_world_i @ self.joint_offset_local[i]
 
             jointPositions[i] = p_joint_world
