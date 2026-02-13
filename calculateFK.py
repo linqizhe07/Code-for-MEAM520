@@ -49,7 +49,7 @@ class FK:
             p_origin_world = T0e[:3, 3]
             R_world_i      = T0e[:3, :3]
 
-            # Put the relative Offset into the Worldframe
+            # Put the relative Offset into the World
             p_joint_world = p_origin_world + R_world_i @ self.joint_offset_local[i]
 
             jointPositions[i] = p_joint_world
@@ -103,5 +103,4 @@ if __name__ == "__main__":
     
     print("Joint Positions:\n",joint_positions)
     print("End Effector Pose:\n",T0e)
-
 
