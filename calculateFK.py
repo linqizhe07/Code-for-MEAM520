@@ -3,9 +3,22 @@ from math import pi, sin, cos
 
 class FK:
     def __init__(self):
-        self.alphas = [0, -pi/2,  pi/2, -pi/2, pi/2,  pi/2, pi/2, 0]
+        self.alphas = [0, -pi/2,  pi/2, -pi/2,  pi/2,  pi/2,  pi/2, 0]
         self.a      = [0, 0, 0, 0.0825, -0.0825, 0, 0.088, 0]
         self.d      = [0.141, 0.192, 0,  0.316, 0, 0.384, 0, 0.210]
+
+        # 你自己填：每个 joint center 相对该 DH frame 原点的偏移（在“该帧坐标系”里）
+        # 先全 0 占位，等你从 handout/URDF 抄数
+        self.joint_offset_local = np.array([
+            [0, 0, 0],  # i=0
+            [0, 0, 0],  # i=1
+            [0, 0, 0.195],  # i=2
+            [0, 0, 0],  # i=3
+            [0, 0, 0.125],  # i=4
+            [0, 0, 0],  # i=5
+            [0, 0, 0],  # i=6
+            [0, 0, 0],  # i=7 (EE 或 flange)
+        ], dtype=float)
 
     def get_transform(self, alpha, a, d, theta):
         return np.array([
@@ -17,25 +30,31 @@ class FK:
 
     def forward(self, q):
         q = np.asarray(q).copy()
-        q = np.append(0, q) 
-        q_offset = [0, 0, 0, 0, pi, 0, 0, -pi/4]
+        assert q.shape[0] == 7
+
+        # 你的建模里第 0 段是固定段，所以在最前面补一个 0（你已验证 append 不行）
+        q8 = np.append(0, q)
+
+        q_offset = np.array([0, 0, 0, 0, pi, 0, 0, -pi/4], dtype=float)
 
         jointPositions = np.zeros((8, 3))
         T0e = np.eye(4)
 
         for i in range(8):
-            # 1. 如果你认为第 i 个关节的位置是在变换 Ai 发生“之前”
-            # 或者 Ai 只包含到当前关节的位移：
-            
-            theta = q[i] + q_offset[i]
+            theta = q8[i] + q_offset[i]
             Ai = self.get_transform(self.alphas[i], self.a[i], self.d[i], theta)
-            
             T0e = T0e @ Ai
-            
-            # 记录位置
-            jointPositions[i] = T0e[:3, 3]
-            
+
+            p_origin_world = T0e[:3, 3]
+            R_world_i      = T0e[:3, :3]
+
+            # 关键：把“局部偏移”旋转到世界系再加
+            p_joint_world = p_origin_world + R_world_i @ self.joint_offset_local[i]
+
+            jointPositions[i] = p_joint_world
+
         return jointPositions, T0e
+
 
 
 
@@ -83,4 +102,5 @@ if __name__ == "__main__":
     
     print("Joint Positions:\n",joint_positions)
     print("End Effector Pose:\n",T0e)
+
 
