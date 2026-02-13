@@ -3,9 +3,9 @@ from math import pi, sin, cos
 
 class FK:
     def __init__(self):
-        self.alphas = [-pi/2,  pi/2, -pi/2, -pi/2,  pi/2, -pi/2, 0]
-        self.a      = [0, 0, 0.0825, 0.0825, 0, 0.088, 0]
-        self.d      = [0.333, 0, 0.316, 0, 0.384, 0, 0.210]
+        self.alphas = [0, -pi/2,  pi/2, -pi/2, pi/2,  pi/2, pi/2, 0]
+        self.a      = [0, 0, 0, 0.0825, -0.0825, 0, 0.088, 0]
+        self.d      = [0.141, 0.192, 0,  0.316, 0, 0.384, 0, 0.210]
 
     def get_transform(self, alpha, a, d, theta):
         return np.array([
@@ -17,28 +17,70 @@ class FK:
 
     def forward(self, q):
         q = np.asarray(q).copy()
-        q_offset = np.zeros(7)
-        q_offset[6] = -pi/4 # 保持你的偏移量逻辑
+        q = np.append(0, q) 
+        q_offset = [0, 0, 0, 0, pi, 0, 0, -pi/4]
 
         jointPositions = np.zeros((8, 3))
-        T0i = np.eye(4)
-    
         T = np.eye(4)
-        T[:3, 3] = [0, 0, 0.141]     # 这就是你说的 0.141
 
-        jointPositions = np.zeros((8,3))
-        jointPositions[0] = T[:3,3]  # 现在第0行是 joint1
-
-
-
-
-        for i in range(7):
+        for i in range(8):
+            # 1. 如果你认为第 i 个关节的位置是在变换 Ai 发生“之前”
+            # 或者 Ai 只包含到当前关节的位移：
+            
             theta = q[i] + q_offset[i]
             Ai = self.get_transform(self.alphas[i], self.a[i], self.d[i], theta)
-            T0i = T0i @ Ai
-            # 记录经过第 i 个关节变换后的位置（即关节 i+1 的位置）
-            jointPositions[i+1] = T0i[:3, 3]
+            
+            T = T @ Ai
+            
+            # 记录位置
+            jointPositions[i] = T[:3, 3]
+            
+        return jointPositions, T
 
-        return jointPositions, T0i
+
+
+
 
     # feel free to define additional helper methods to modularize your solution for lab 1
+
+    
+    # This code is for Lab 2, you can ignore it ofr Lab 1
+    def get_axis_of_rotation(self, q):
+        """
+        INPUT:
+        q - 1x7 vector of joint angles [q0, q1, q2, q3, q4, q5, q6]
+
+        OUTPUTS:
+        axis_of_rotation_list: - 3x7 np array of unit vectors describing the axis of rotation for each joint in the
+                                 world frame
+
+        """
+        # STUDENT CODE HERE: This is a function needed by lab 2
+
+        return()
+    
+    def compute_Ai(self, q):
+        """
+        INPUT:
+        q - 1x7 vector of joint angles [q0, q1, q2, q3, q4, q5, q6]
+
+        OUTPUTS:
+        Ai: - 4x4 list of np array of homogenous transformations describing the FK of the robot. Transformations are not
+              necessarily located at the joint locations
+        """
+        # STUDENT CODE HERE: This is a function needed by lab 2
+
+        return()
+    
+if __name__ == "__main__":
+
+    fk = FK()
+
+    # matches figure in the handout
+    q = np.array([0,0,0,-pi/2,0,pi/2,pi/4])
+
+    joint_positions, T0e = fk.forward(q)
+    
+    print("Joint Positions:\n",joint_positions)
+    print("End Effector Pose:\n",T0e)
+
