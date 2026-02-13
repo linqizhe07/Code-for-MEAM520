@@ -5,8 +5,8 @@ class FK:
     def __init__(self):
 
         # Standard DH
-        self.alphas = [0, -pi/2,  pi/2, -pi/2,  pi/2,  pi/2,  pi/2, 0]
-        self.a      = [0, 0, 0, 0.0825, -0.0825, 0, 0.088, 0]
+        self.alphas = [0, -pi/2,  pi/2, pi/2,  pi/2,  -pi/2,  pi/2, 0]
+        self.a      = [0, 0, 0, 0.0825, 0.0825, 0, 0.088, 0]
         self.d      = [0.141, 0.192, 0,  0.316, 0, 0.384, 0, 0.210]
 
         # Relative Offset of joint centers compare to the origin of DH frame 
@@ -16,8 +16,8 @@ class FK:
             [0, 0, 0.195],  # i=2
             [0, 0, 0],  # i=3
             [0, 0, 0.125],  # i=4
-            [0, 0, -0.015],  # i=5
-            [0, 0, 0.051],  # i=6
+            [0, 0, -0],  # i=5
+            [0, 0, 0.015],  # i=6
             [0, 0, 0],  # i=7 
         ], dtype=float)
 
@@ -36,7 +36,7 @@ class FK:
         # Offset of Worldframe
         q = np.append(0, q)
 
-        q_offset = np.array([0, 0, 0, 0, pi, 0, 0, -pi/4], dtype=float)
+        q_offset = np.array([0, 0, 0, 0, pi, 0, -pi, -pi/4], dtype=float)
 
         jointPositions = np.zeros((8, 3))
         T0e = np.eye(4)
@@ -103,4 +103,5 @@ if __name__ == "__main__":
     
     print("Joint Positions:\n",joint_positions)
     print("End Effector Pose:\n",T0e)
+
 
